@@ -10,34 +10,37 @@ module seq8bit(input clk,reset,
 reg clkdiv,clkms,flag;
 reg e110,e30,e118,e181,e84,e91,e40,e65,e187,e254;
 integer temp1,temp2;
+
 initial
-begin
-temp1=0;
-temp2=0;
-counter1=4'b1110;
-counter2=4'b0110;
-clkdiv=1'b0;
-flag=0;
-clkms=0;
+ begin
+  temp1=0;
+  temp2=0;
+  counter1=4'b1110; 
+  counter2=4'b0110;
+  clkdiv=1'b0;
+  flag=0;
+  clkms=0;
 end
 
-
+// clock divider logit
 always@(posedge clk)
 begin
 temp1=temp1+1;
 temp2=temp2+1;
 if(temp1==2000000)
 begin
-clkdiv=~clkdiv;
+clkdiv=~clkdiv; // clock signal for time multiplexing
 temp1=0;
 end
 if(temp2==200)
 begin
-clkms=~clkms;
+clkms=~clkms; // clock signal for counter
 temp2=0;
 end
 end
 
+
+// Sequence decide logic using dataflow style
 always@(posedge clkdiv)
 begin
 if(reset)
@@ -94,37 +97,34 @@ end
 
 always@(posedge clkms)
 begin
+ if (flag==1'b0)
+ begin
+  control=4'b0111; 
 
-if (flag==1'b0)
-begin
-control=4'b0111;
-
-case(counter2)
-0:display=8'b11111100;
-1:display=8'b01100000;
-2:display=8'b11011010;
-3:display=8'b11110010;
-4:display=8'b01100110;
-5:display=8'b10110110;
-6:display=8'b10111110;
-7:display=8'b11100000;
-8:display=8'b11111110;
-9:display=8'b11110110;
-10:display=8'b11101110;
-11:display=8'b00111110;
-12:display=8'b10011100;
-13:display=8'b01111010;
-14:display=8'b10011110;
-15:display=8'b10001110;
-endcase
-flag=1'b1;
-end
-
+  case(counter2)   // hex - sevensegment decoder for seg 1
+   0:display=8'b11111100;
+   1:display=8'b01100000;
+   2:display=8'b11011010;
+   3:display=8'b11110010;
+   4:display=8'b01100110;
+   5:display=8'b10110110;
+   6:display=8'b10111110;
+   7:display=8'b11100000;
+   8:display=8'b11111110;
+   9:display=8'b11110110;
+   10:display=8'b11101110;
+   11:display=8'b00111110;
+   12:display=8'b10011100;
+   13:display=8'b01111010;
+   14:display=8'b10011110;
+   15:display=8'b10001110;
+  endcase
+  flag=1'b1;
+ end
 else
-
-begin
-control=4'b1011;
-case(counter1)
+ begin
+control=4'b1011;  
+case(counter1)   // hex - sevensegment decoder for seg 2
 0:display=8'b11111100;
 1:display=8'b01100000;
 2:display=8'b11011010;
